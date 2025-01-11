@@ -23,17 +23,31 @@ io.on("connection", socket => {
 
     //Output available client info
     console.log("=====")
-    console.log("remaining client ids are: ");
+    console.log("Client ids are: ");
     clients.forEach(
         (element)=> {
             console.log(element.userId);
         });
     console.log("=====")
 
+    io.emit("clients", clients);
+
     //On receiving a message, emit to all participants -> Group chat
     socket.on('message', (data) => {
-        console.log(`Receivedd ${data}`);
-        io.emit("message", `${socket.id.substring(0,2)} says ${data}`);
+        console.log(`Receivedd ${data.userId}, ${data.message}`);
+
+        // io.emit("message", `${socket.id.substring(0,5)} says ${data}`); //This is send to all
+
+        //Send to selected user only
+        const client = clients.find(client => client.userId == data.userId);
+        console.log(client.userId, client.socketId);
+        if (client) {
+            io.to(client.socketId).emit("message", data.message);
+            console.log("Private message send to user ID" + client.userId + " with socket ID " + client.socketId);
+        } else {
+            console.log('No user found');
+        }
+
     })
 
     //Handle disconnect event -> delete the socket ide form the client list

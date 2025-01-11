@@ -3,23 +3,57 @@
 //Create the socket connection
 const socket = io('http://localhost:8080');
 
+
+const dropDown = document.getElementById('users');
+dropDown.innerHTML = '';
+
+const messages = document.getElementById('messages');
+const input = document.querySelector('input');
+const sendButton = document.getElementById('send');
+const disconnectButton = document.getElementById('disconnect');
+
+
+
+
 //Socket on connection -> send message
 socket.on('connect', () => {
     console.log("Socket connected with ID: " + socket.id);
 })
+
+socket.on('clients', (clients) => {
+    dropDown.innerHTML = '';
+    clients.forEach(client => {
+        console.log(`${client.userId} , ${client.socketId}`);
+        const option = document.createElement("option");
+        option.value = client.userId;
+        option.textContent = `User ${client.userId}`;
+        dropDown.append(option);
+    })
+})
+
+
 
 //Socket on receiving message -> append to list
 socket.on('message', (msg) => {
     console.log("Received a message from server");
     const e1 = document.createElement("li");
     e1.innerHTML = msg;
-    document.querySelector('ul').append(e1);
+    messages.append(e1);
 })
 
 //Send message upon clicking send button
-document.getElementById('send').addEventListener('click', (e) => {
-    const input = document.querySelector('input');
-    socket.emit('message', input.value);
+sendButton.addEventListener('click', (e) => {
+    // socket.emit('message', input.value); // This is send to all
+    //This is send to selected user only
+    if (dropDown && dropDown.value) {
+        const data = {
+            userId: dropDown.value,
+            message: input.value
+        };
+        socket.emit('message', data);
+    } else {
+        console.error('No user selected or dropDown element not found');
+    }
 })
 
 //Define a manual disconnect event
@@ -29,7 +63,7 @@ function disconnectClient() {
 }
 
 //Trigger disconnect event by clicking on button
-document.getElementById('disconnect').addEventListener('click', (e) => {
+disconnectButton.addEventListener('click', (e) => {
     disconnectClient();
 })
 
