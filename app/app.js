@@ -1,17 +1,39 @@
-const websocket = new WebSocket("ws://localhost:8080");
+//Client side code
 
-websocket.onopen = () => {
-    console.log("WebSocket opened");
-    websocket.send("Hello from client");
+//Create the socket connection
+const socket = io('http://localhost:8080');
+
+//Socket on connection -> send message
+socket.on('connect', () => {
+    console.log("Socket connected with ID: " + socket.id);
+})
+
+//Socket on receiving message -> append to list
+socket.on('message', (msg) => {
+    console.log("Received a message from server");
+    const e1 = document.createElement("li");
+    e1.innerHTML = msg;
+    document.querySelector('ul').append(e1);
+})
+
+//Send message upon clicking send button
+document.getElementById('send').addEventListener('click', (e) => {
+    const input = document.querySelector('input');
+    socket.emit('message', input.value);
+})
+
+//Define a manual disconnect event
+function disconnectClient() {
+    socket.emit('disconnectClient', socket.id);
+    console.log("Client manually requested disconnection");
 }
 
-websocket.onmessage = (event) => {
-    console.log(`Message received by client: ${JSON.stringify(event.data)}`);
-}
+//Trigger disconnect event by clicking on button
+document.getElementById('disconnect').addEventListener('click', (e) => {
+    disconnectClient();
+})
 
-button = document.getElementById("submit-button");
-inputText = document.getElementById("textfield");
-
-button.addEventListener('click', (event) => {
-    websocket.send(inputText.value);
-});
+//Disconnect upon window close
+window.addEventListener('beforeunload', () => {
+    socket.disconnect();
+})
