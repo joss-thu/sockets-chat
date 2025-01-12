@@ -10,11 +10,10 @@ const io = require("socket.io")(http, {
 
 //For saving joining clients
 const clients = [];
-let userIdCount = 0;
 
 io.on("connection", socket => {
     console.log("Client connectedd with socket id: " + socket.id);
-    const userId = userIdCount++;
+    const userId = socket.handshake.query.userId;
     //Update client information
     clients.push({
         userId: userId,
@@ -39,11 +38,11 @@ io.on("connection", socket => {
         // io.emit("message", `${socket.id.substring(0,5)} says ${data}`); //This is send to all
 
         //Send to selected user only
-        const client = clients.find(client => client.userId == data.userId);
+        const client = clients.find(client => client.userId === data.userId);
         console.log(client.userId, client.socketId);
         if (client) {
             io.to(client.socketId).emit("message", data.message);
-            console.log("Private message send to user ID" + client.userId + " with socket ID " + client.socketId);
+            console.log("Private message send to userId " + client.userId + " with socket ID " + client.socketId);
         } else {
             console.log('No user found');
         }

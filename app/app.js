@@ -1,9 +1,4 @@
 //Client side code
-
-//Create the socket connection
-const socket = io('http://localhost:8080');
-
-
 const dropDown = document.getElementById('users');
 dropDown.innerHTML = '';
 
@@ -12,12 +7,22 @@ const input = document.querySelector('input');
 const sendButton = document.getElementById('send');
 const disconnectButton = document.getElementById('disconnect');
 
+// Function to generate a random alphanumeric string
+function generateRandomString(length) {
+    return Math.random().toString(36).substring(2, 2 + length);
+}
 
+// Generate a random userId
+const userId = generateRandomString(4);
 
+//Create the socket connection
+const socket = io('http://localhost:8080', {
+    query : { userId: userId },
+});
 
 //Socket on connection -> send message
 socket.on('connect', () => {
-    console.log("Socket connected with ID: " + socket.id);
+    console.log("Socket connected with ID: " + socket.id);    
 })
 
 socket.on('clients', (clients) => {
