@@ -49,6 +49,7 @@ socket.on('message', (msg) => {
 //Send message upon clicking send button
 sendButton.addEventListener('click', (e) => {
     // socket.emit('message', input.value); // This is send to all
+
     //This is send to selected user only
     if (dropDown && dropDown.value) {
         const data = {

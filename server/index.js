@@ -31,7 +31,7 @@ io.on("connection", socket => {
 
     io.emit("clients", clients);
 
-    //On receiving a message, emit to all participants -> Group chat
+    //On receiving a message
     socket.on('message', (data) => {
         console.log(`Receivedd ${data.userId}, ${data.message}`);
 
@@ -49,7 +49,7 @@ io.on("connection", socket => {
 
     })
 
-    //Handle disconnect event -> delete the socket ide form the client list
+    //Handle disconnect event -> delete the socket ids form the client list
     socket.once('disconnect', () => {
         const index = clients.findIndex(socket => socket.id === socket.id);
         if (index !== -1) {
